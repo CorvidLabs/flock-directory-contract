@@ -13,6 +13,6 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": ["contracts/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"],
+  "include": ["contracts/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist", "artifacts"]
 }

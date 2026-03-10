@@ -21,7 +21,16 @@ jobs:
         run: bun install
 
       - name: Typecheck
-        run: bun run typecheck
+        run: |
+          # TEALScript ships .ts source files that skipLibCheck can't skip,
+          # so we filter out node_modules errors and only fail on our own code
+          bun x tsc --noEmit 2>&1 | tee /tmp/tsc-output.txt || true
+          if grep -v "node_modules" /tmp/tsc-output.txt | grep "error TS" > /dev/null 2>&1; then
+            echo "::error::TypeScript errors found in project code:"
+            grep -v "node_modules" /tmp/tsc-output.txt | grep "error TS"
+            exit 1
+          fi
+          echo "Typecheck passed (node_modules errors from TEALScript .ts sources ignored)"
 
       - name: Build contracts
         run: bun run build

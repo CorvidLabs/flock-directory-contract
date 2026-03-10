@@ -46,7 +46,7 @@ function getMethod(arc32: any, name: string): algosdk.ABIMethod {
 /** Deploy a fresh FlockDirectory contract and return the app ID + address */
 async function deployContract(
     algorand: AlgorandClient,
-    sender: string,
+    sender: string | algosdk.Address,
     artifacts: ReturnType<typeof loadArtifacts>,
 ): Promise<{ appId: bigint; appAddress: string }> {
     const approvalCompiled = await algorand.app.compileTeal(artifacts.approvalTeal);
@@ -67,7 +67,7 @@ async function deployContract(
     });
 
     const appId = BigInt(result.confirmation.applicationIndex!);
-    const appAddress = algosdk.getApplicationAddress(Number(appId));
+    const appAddress = algosdk.getApplicationAddress(Number(appId)).toString();
 
     // Fund the app so it can return stakes
     await algorand.send.payment({
