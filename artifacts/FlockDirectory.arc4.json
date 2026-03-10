@@ -1,0 +1,235 @@
+{
+  "name": "FlockDirectory",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "registerAgent",
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "endpoint",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "payment",
+          "type": "pay"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "updateAgent",
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "endpoint",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "heartbeat",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "deregister",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "createChallenge",
+      "args": [
+        {
+          "name": "challengeId",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "maxScore",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "deactivateChallenge",
+      "args": [
+        {
+          "name": "challengeId",
+          "type": "string"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "recordTestResult",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        },
+        {
+          "name": "challengeId",
+          "type": "string"
+        },
+        {
+          "name": "score",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "getAgentTier",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getAgentScore",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getAgentTestCount",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      }
+    },
+    {
+      "name": "getAgentInfo",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "(string,string,string,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
+      }
+    },
+    {
+      "name": "getChallengeInfo",
+      "args": [
+        {
+          "name": "challengeId",
+          "type": "string"
+        }
+      ],
+      "returns": {
+        "type": "(string,string,uint64,uint64)"
+      }
+    },
+    {
+      "name": "updateMinStake",
+      "args": [
+        {
+          "name": "newMinStake",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "transferAdmin",
+      "args": [
+        {
+          "name": "newAdmin",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "setRegistrationOpen",
+      "args": [
+        {
+          "name": "open",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "adminRemoveAgent",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}
