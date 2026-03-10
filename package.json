@@ -1,0 +1,14 @@
+{
+  "name": "@corvidlabs/flock-directory-contract",
+  "version": "0.1.0",
+  "description": "Flock Directory smart contract for Algorand",
+  "type": "module",
+  "scripts": {
+    "build": "npx tealscript contracts/*.algo.ts artifacts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy:localnet": "ts-node scripts/deploy.ts"
+  },
+  "keywords": ["algorand", "smart-contract", "tealscript", "flock-directory"],
+  "license": "MIT"
+}
