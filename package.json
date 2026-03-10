@@ -1,14 +1,28 @@
 {
   "name": "@corvidlabs/flock-directory-contract",
   "version": "0.1.0",
-  "description": "Flock Directory smart contract for Algorand",
+  "description": "Flock Directory smart contract for Algorand — agent registry, reputation, and capability testing",
   "type": "module",
   "scripts": {
     "build": "npx tealscript contracts/*.algo.ts artifacts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy:localnet": "ts-node scripts/deploy.ts"
+    "typecheck": "tsc --noEmit",
+    "deploy:testnet": "npx tsx scripts/deploy-testnet.ts",
+    "deploy:localnet": "npx tsx scripts/deploy-localnet.ts"
   },
-  "keywords": ["algorand", "smart-contract", "tealscript", "flock-directory"],
-  "license": "MIT"
+  "keywords": ["algorand", "smart-contract", "tealscript", "flock-directory", "agent-registry"],
+  "license": "MIT",
+  "dependencies": {
+    "@algorandfoundation/algokit-utils": "^9.2.0",
+    "@algorandfoundation/tealscript": "^0.107.1",
+    "algosdk": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
 }

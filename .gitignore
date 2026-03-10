@@ -1,7 +1,7 @@
 node_modules/
 dist/
-artifacts/
 .algokit/
-*.teal
 .env
 .env.local
+bun.lockb
+artifacts/deployment-*.json

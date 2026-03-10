@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Typecheck, Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Typecheck
+        run: |
+          # TEALScript ships .ts source files that skipLibCheck can't skip,
+          # so we filter out node_modules errors and only fail on our own code
+          bun x tsc --noEmit 2>&1 | tee /tmp/tsc-output.txt || true
+          if grep -v "node_modules" /tmp/tsc-output.txt | grep "error TS" > /dev/null 2>&1; then
+            echo "::error::TypeScript errors found in project code:"
+            grep -v "node_modules" /tmp/tsc-output.txt | grep "error TS"
+            exit 1
+          fi
+          echo "Typecheck passed (node_modules errors from TEALScript .ts sources ignored)"
+
+      - name: Install AlgoKit
+        run: pipx install algokit
+
+      - name: Start AlgoKit localnet
+        run: |
+          algokit localnet start
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:4001/v2/status > /dev/null 2>&1; then
+              echo "Localnet ready after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Build contracts
+        run: bun run build
+
+      - name: Run tests
+        run: bun run test
+        env:
+          ALGOD_SERVER: http://localhost
+          ALGOD_PORT: 4001
+          ALGOD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          KMD_PORT: 4002
+          KMD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          INDEXER_PORT: 8980
+          INDEXER_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

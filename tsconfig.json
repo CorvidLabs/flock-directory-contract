@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": ["contracts/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "artifacts"]
+}
