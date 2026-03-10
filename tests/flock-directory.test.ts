@@ -82,9 +82,13 @@ async function deployContract(
 // ── Test Suite ────────────────────────────────────────────────────
 
 describe('FlockDirectory Contract', () => {
+    const INDEXER_PORT = parseInt(process.env.INDEXER_PORT || '8980', 10);
+    const INDEXER_TOKEN = process.env.INDEXER_TOKEN || ALGOD_TOKEN;
     const fixture = algorandFixture({
         algodConfig: { server: ALGOD_SERVER, port: ALGOD_PORT, token: ALGOD_TOKEN },
         kmdConfig: { server: ALGOD_SERVER, port: KMD_PORT, token: KMD_TOKEN },
+        indexerConfig: { server: ALGOD_SERVER, port: INDEXER_PORT, token: INDEXER_TOKEN },
+        testAccountFunding: (100).algo(),
     });
     let artifacts: ReturnType<typeof loadArtifacts>;
 
@@ -339,12 +343,13 @@ describe('FlockDirectory Contract', () => {
             // Check balance after registration
             const balanceBefore = (await algorand.account.getInformation(agent.addr)).balance;
 
-            // Deregister
+            // Deregister (needs extraFee to cover inner payment txn)
             await algorand.send.appCallMethodCall({
                 sender: agent.addr,
                 appId,
                 method: getMethod(artifacts.arc32, 'deregister'),
                 args: [],
+                extraFee: (1000).microAlgo(),
             });
 
             // Check balance increased (stake returned)
@@ -440,7 +445,7 @@ describe('FlockDirectory Contract', () => {
                 args: [agent.addr],
             });
 
-            expect(tierResult.return).toBe(2n); // TIER_TESTED
+            expect(tierResult.return?.returnValue).toBe(2n); // TIER_TESTED
         });
 
         test('agent reaches ESTABLISHED tier after 3 good tests', async () => {
@@ -494,7 +499,7 @@ describe('FlockDirectory Contract', () => {
                 args: [agent.addr],
             });
 
-            expect(tierResult.return).toBe(3n); // TIER_ESTABLISHED
+            expect(tierResult.return?.returnValue).toBe(3n); // TIER_ESTABLISHED
         });
 
         test('agent reaches TRUSTED tier after 5 excellent tests', async () => {
@@ -545,7 +550,7 @@ describe('FlockDirectory Contract', () => {
                 args: [agent.addr],
             });
 
-            expect(tierResult.return).toBe(4n); // TIER_TRUSTED
+            expect(tierResult.return?.returnValue).toBe(4n); // TIER_TRUSTED
 
             // Verify score is 90%
             const scoreResult = await algorand.send.appCallMethodCall({
@@ -555,7 +560,7 @@ describe('FlockDirectory Contract', () => {
                 args: [agent.addr],
             });
 
-            expect(scoreResult.return).toBe(90n);
+            expect(scoreResult.return?.returnValue).toBe(90n);
         });
 
         test('deactivated challenge cannot be used for scoring', async () => {
@@ -684,12 +689,13 @@ describe('FlockDirectory Contract', () => {
 
             const balanceBefore = (await algorand.account.getInformation(agent.addr)).balance;
 
-            // Admin removes
+            // Admin removes (needs extraFee to cover inner payment txn)
             await algorand.send.appCallMethodCall({
                 sender: testAccount.addr,
                 appId,
                 method: getMethod(artifacts.arc32, 'adminRemoveAgent'),
                 args: [agent.addr],
+                extraFee: (1000).microAlgo(),
             });
 
             // Stake returned
@@ -732,9 +738,9 @@ describe('FlockDirectory Contract', () => {
                 args: [testAccount.addr],
             });
 
-            expect(result.return).toBeDefined();
+            expect(result.return?.returnValue).toBeDefined();
             // Return is a tuple: [name, endpoint, metadata, tier, totalScore, totalMaxScore, testCount, lastHB, regRound, stake]
-            const record = result.return as any[];
+            const record = result.return!.returnValue as any[];
             expect(record[0]).toBe('corvid-agent');
             expect(record[1]).toBe('https://corvid.example.com/api');
             expect(record[3]).toBe(1n); // TIER_REGISTERED
@@ -759,8 +765,8 @@ describe('FlockDirectory Contract', () => {
                 args: ['api-latency'],
             });
 
-            expect(result.return).toBeDefined();
-            const challenge = result.return as any[];
+            expect(result.return?.returnValue).toBeDefined();
+            const challenge = result.return!.returnValue as any[];
             expect(challenge[0]).toBe('performance');
             expect(challenge[2]).toBe(100n);
             expect(challenge[3]).toBe(1n); // active
