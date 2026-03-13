@@ -124,6 +124,18 @@
       }
     },
     {
+      "name": "getAgentInfo",
+      "args": [
+        {
+          "name": "agentAddress",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "(string,string,string,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
+      }
+    },
+    {
       "name": "getAgentTier",
       "args": [
         {
@@ -157,18 +169,6 @@
       ],
       "returns": {
         "type": "uint64"
-      }
-    },
-    {
-      "name": "getAgentInfo",
-      "args": [
-        {
-          "name": "agentAddress",
-          "type": "address"
-        }
-      ],
-      "returns": {
-        "type": "(string,string,string,uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
       }
     },
     {
