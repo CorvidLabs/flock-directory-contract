@@ -38,7 +38,7 @@ const TIER_TRUSTED = 4;
 
 // ── Contract ─────────────────────────────────────────────────────────────────
 
-class FlockDirectory extends Contract {
+export class FlockDirectory extends Contract {
   // ── Global state ─────────────────────────────────────────────────────────
 
   admin = GlobalStateKey<Address>({ key: 'admin' });
@@ -55,9 +55,9 @@ class FlockDirectory extends Contract {
 
   agents = BoxMap<Address, AgentRecord>({ prefix: 'a' });
 
-  testResults = BoxMap<[Address, string], TestResult>({ prefix: 't' });
+  testResults = BoxMap<[Address, string], TestResult>({ prefix: 't', dynamicSize: true });
 
-  challenges = BoxMap<string, Challenge>({ prefix: 'c' });
+  challenges = BoxMap<string, Challenge>({ prefix: 'c', dynamicSize: true });
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -101,7 +101,7 @@ class FlockDirectory extends Contract {
   updateAgent(name: string, endpoint: string, metadata: string): void {
     assert(this.agents(this.txn.sender).exists);
 
-    const agent = this.agents(this.txn.sender).value;
+    const agent = clone(this.agents(this.txn.sender).value);
     this.agents(this.txn.sender).value = {
       name: name,
       endpoint: endpoint,
@@ -119,7 +119,7 @@ class FlockDirectory extends Contract {
   heartbeat(): void {
     assert(this.agents(this.txn.sender).exists);
 
-    const agent = this.agents(this.txn.sender).value;
+    const agent = clone(this.agents(this.txn.sender).value);
     this.agents(this.txn.sender).value = {
       name: agent.name,
       endpoint: agent.endpoint,
@@ -137,7 +137,7 @@ class FlockDirectory extends Contract {
   deregister(): void {
     assert(this.agents(this.txn.sender).exists);
 
-    const agent = this.agents(this.txn.sender).value;
+    const agent = clone(this.agents(this.txn.sender).value);
     const stakeAmount = agent.stake;
 
     this.agents(this.txn.sender).delete();
@@ -174,7 +174,7 @@ class FlockDirectory extends Contract {
     assert(this.txn.sender === this.admin.value);
     assert(this.challenges(challengeId).exists);
 
-    const challenge = this.challenges(challengeId).value;
+    const challenge = clone(this.challenges(challengeId).value);
     this.challenges(challengeId).value = {
       category: challenge.category,
       description: challenge.description,
@@ -194,7 +194,7 @@ class FlockDirectory extends Contract {
     assert(this.agents(agentAddress).exists);
     assert(this.challenges(challengeId).exists);
 
-    const challenge = this.challenges(challengeId).value;
+    const challenge = clone(this.challenges(challengeId).value);
     assert(challenge.active === 1);
     assert(score <= challenge.maxScore);
 
@@ -207,13 +207,13 @@ class FlockDirectory extends Contract {
     };
 
     // Update agent aggregate scores
-    const agent = this.agents(agentAddress).value;
+    const agent = clone(this.agents(agentAddress).value);
     const newTotalScore = agent.totalScore + score;
     const newTotalMaxScore = agent.totalMaxScore + challenge.maxScore;
     const newTestCount = agent.testCount + 1;
 
-    // Calculate tier based on test count
-    const newTier = this.calculateTier(newTestCount);
+    // Calculate tier based on test count and score
+    const newTier = this.calculateTier(newTotalScore, newTotalMaxScore, newTestCount);
 
     this.agents(agentAddress).value = {
       name: agent.name,
@@ -243,7 +243,9 @@ class FlockDirectory extends Contract {
 
   getAgentScore(agentAddress: Address): uint64 {
     assert(this.agents(agentAddress).exists);
-    return this.agents(agentAddress).value.totalScore;
+    const agent = this.agents(agentAddress).value;
+    if (agent.totalMaxScore === 0) return 0;
+    return (agent.totalScore * 100) / agent.totalMaxScore;
   }
 
   getAgentTestCount(agentAddress: Address): uint64 {
@@ -277,7 +279,7 @@ class FlockDirectory extends Contract {
     assert(this.txn.sender === this.admin.value);
     assert(this.agents(agentAddress).exists);
 
-    const agent = this.agents(agentAddress).value;
+    const agent = clone(this.agents(agentAddress).value);
     const stakeAmount = agent.stake;
 
     this.agents(agentAddress).delete();
@@ -291,10 +293,17 @@ class FlockDirectory extends Contract {
 
   // ── Internal helpers ─────────────────────────────────────────────────────
 
-  private calculateTier(testCount: uint64): uint64 {
-    if (testCount >= 10) return TIER_TRUSTED;
-    if (testCount >= 5) return TIER_ESTABLISHED;
-    if (testCount >= 1) return TIER_TESTED;
-    return TIER_REGISTERED;
+  private calculateTier(
+    totalScore: uint64,
+    totalMaxScore: uint64,
+    testCount: uint64
+  ): uint64 {
+    if (testCount === 0) return TIER_REGISTERED;
+
+    const percentage = (totalScore * 100) / totalMaxScore;
+
+    if (testCount >= 5 && percentage >= 80) return TIER_TRUSTED;
+    if (testCount >= 3 && percentage >= 60) return TIER_ESTABLISHED;
+    return TIER_TESTED;
   }
 }
