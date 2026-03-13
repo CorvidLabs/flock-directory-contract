@@ -1,327 +1,300 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
-// Reputation tiers
+// ── Structs ──────────────────────────────────────────────────────────────────
+
+type AgentRecord = {
+  name: string;
+  endpoint: string;
+  metadata: string;
+  tier: uint64;
+  totalScore: uint64;
+  totalMaxScore: uint64;
+  testCount: uint64;
+  lastHeartbeatRound: uint64;
+  registrationRound: uint64;
+  stake: uint64;
+};
+
+type TestResult = {
+  score: uint64;
+  maxScore: uint64;
+  category: string;
+  round: uint64;
+};
+
+type Challenge = {
+  category: string;
+  description: string;
+  maxScore: uint64;
+  active: uint64;
+};
+
+// ── Tier constants ───────────────────────────────────────────────────────────
+
 const TIER_REGISTERED = 1;
 const TIER_TESTED = 2;
 const TIER_ESTABLISHED = 3;
 const TIER_TRUSTED = 4;
 
-// Agent record: stored as ABI tuple in BoxMap
-// We store numeric fields in global/local state where possible,
-// and use BoxMap for the main agent data.
+// ── Contract ─────────────────────────────────────────────────────────────────
 
-type AgentRecord = {
-    name: string;
-    endpoint: string;
-    metadata: string;
-    tier: uint64;
-    totalScore: uint64;
-    totalMaxScore: uint64;
-    testCount: uint64;
-    lastHeartbeatRound: uint64;
-    registrationRound: uint64;
-    stake: uint64;
-};
+class FlockDirectory extends Contract {
+  // ── Global state ─────────────────────────────────────────────────────────
 
-type TestResult = {
-    score: uint64;
-    maxScore: uint64;
-    category: string;
-    round: uint64;
-};
+  admin = GlobalStateKey<Address>({ key: 'admin' });
 
-type Challenge = {
-    category: string;
-    description: string;
-    maxScore: uint64;
-    active: uint64;
-};
+  agentCount = GlobalStateKey<uint64>({ key: 'agent_count' });
 
-/**
- * Flock Directory Contract
- *
- * On-chain agent registry with reputation scoring and capability testing.
- * Uses BoxMap for structured agent records, test results, and challenges.
- */
-export class FlockDirectory extends Contract {
-    // ── Global State ──────────────────────────────────────────────
+  minStake = GlobalStateKey<uint64>({ key: 'min_stake' });
 
-    agentCount = GlobalStateKey<uint64>({ key: 'agent_count' });
-    minStake = GlobalStateKey<uint64>({ key: 'min_stake' });
-    admin = GlobalStateKey<Address>({ key: 'admin' });
-    challengeCount = GlobalStateKey<uint64>({ key: 'chal_count' });
-    registrationOpen = GlobalStateKey<uint64>({ key: 'reg_open' });
+  registrationOpen = GlobalStateKey<uint64>({ key: 'reg_open' });
 
-    // ── Box Storage ───────────────────────────────────────────────
+  challengeCount = GlobalStateKey<uint64>({ key: 'chal_count' });
 
-    /** agent:{address} → AgentRecord */
-    agents = BoxMap<Address, AgentRecord>({ prefix: 'a' });
+  // ── Box storage ──────────────────────────────────────────────────────────
 
-    /** test:[address, testId] → TestResult */
-    testResults = BoxMap<[Address, string], TestResult>({ prefix: 't', dynamicSize: true });
+  agents = BoxMap<Address, AgentRecord>({ prefix: 'a' });
 
-    /** challenge:{id} → Challenge */
-    challenges = BoxMap<string, Challenge>({ prefix: 'c', dynamicSize: true });
+  testResults = BoxMap<[Address, string], TestResult>({ prefix: 't' });
 
-    // ── Lifecycle ─────────────────────────────────────────────────
+  challenges = BoxMap<string, Challenge>({ prefix: 'c' });
 
-    createApplication(): void {
-        this.admin.value = this.txn.sender;
-        this.agentCount.value = 0;
-        this.minStake.value = 1_000_000; // 1 ALGO default
-        this.challengeCount.value = 0;
-        this.registrationOpen.value = 1;
-    }
+  // ── Lifecycle ────────────────────────────────────────────────────────────
 
-    // ── Agent Registration ────────────────────────────────────────
+  createApplication(): void {
+    this.admin.value = this.txn.sender;
+    this.minStake.value = 1_000_000;
+    this.agentCount.value = 0;
+    this.challengeCount.value = 0;
+    this.registrationOpen.value = 1;
+  }
 
-    registerAgent(
-        name: string,
-        endpoint: string,
-        metadata: string,
-        payment: PayTxn,
-    ): void {
-        assert(this.registrationOpen.value === 1, 'Registration is closed');
-        assert(payment.amount >= this.minStake.value, 'Insufficient stake');
-        assert(payment.receiver === this.app.address, 'Payment must go to contract');
-        assert(name.length > 0 && name.length <= 64, 'Invalid name length');
-        assert(endpoint.length > 0 && endpoint.length <= 256, 'Invalid endpoint length');
-        assert(metadata.length <= 512, 'Metadata too long');
-        assert(!this.agents(this.txn.sender).exists, 'Agent already registered');
+  // ── Agent management ─────────────────────────────────────────────────────
 
-        this.agents(this.txn.sender).value = {
-            name: name,
-            endpoint: endpoint,
-            metadata: metadata,
-            tier: TIER_REGISTERED,
-            totalScore: 0,
-            totalMaxScore: 0,
-            testCount: 0,
-            lastHeartbeatRound: globals.round,
-            registrationRound: globals.round,
-            stake: payment.amount,
-        };
+  registerAgent(
+    name: string,
+    endpoint: string,
+    metadata: string,
+    payment: PayTxn
+  ): void {
+    assert(this.registrationOpen.value === 1);
+    assert(payment.amount >= this.minStake.value);
+    assert(payment.receiver === this.app.address);
+    assert(!this.agents(this.txn.sender).exists);
 
-        this.agentCount.value = this.agentCount.value + 1;
-    }
+    this.agents(this.txn.sender).value = {
+      name: name,
+      endpoint: endpoint,
+      metadata: metadata,
+      tier: TIER_REGISTERED,
+      totalScore: 0,
+      totalMaxScore: 0,
+      testCount: 0,
+      lastHeartbeatRound: globals.round,
+      registrationRound: globals.round,
+      stake: payment.amount,
+    };
 
-    updateAgent(
-        name: string,
-        endpoint: string,
-        metadata: string,
-    ): void {
-        assert(name.length > 0 && name.length <= 64, 'Invalid name length');
-        assert(endpoint.length > 0 && endpoint.length <= 256, 'Invalid endpoint length');
-        assert(metadata.length <= 512, 'Metadata too long');
-        assert(this.agents(this.txn.sender).exists, 'Agent not registered');
+    this.agentCount.value = this.agentCount.value + 1;
+  }
 
-        const existing = clone(this.agents(this.txn.sender).value);
+  updateAgent(name: string, endpoint: string, metadata: string): void {
+    assert(this.agents(this.txn.sender).exists);
 
-        this.agents(this.txn.sender).value = {
-            name: name,
-            endpoint: endpoint,
-            metadata: metadata,
-            tier: existing.tier,
-            totalScore: existing.totalScore,
-            totalMaxScore: existing.totalMaxScore,
-            testCount: existing.testCount,
-            lastHeartbeatRound: existing.lastHeartbeatRound,
-            registrationRound: existing.registrationRound,
-            stake: existing.stake,
-        };
-    }
+    const agent = this.agents(this.txn.sender).value;
+    this.agents(this.txn.sender).value = {
+      name: name,
+      endpoint: endpoint,
+      metadata: metadata,
+      tier: agent.tier,
+      totalScore: agent.totalScore,
+      totalMaxScore: agent.totalMaxScore,
+      testCount: agent.testCount,
+      lastHeartbeatRound: agent.lastHeartbeatRound,
+      registrationRound: agent.registrationRound,
+      stake: agent.stake,
+    };
+  }
 
-    heartbeat(): void {
-        assert(this.agents(this.txn.sender).exists, 'Agent not registered');
+  heartbeat(): void {
+    assert(this.agents(this.txn.sender).exists);
 
-        const existing = clone(this.agents(this.txn.sender).value);
+    const agent = this.agents(this.txn.sender).value;
+    this.agents(this.txn.sender).value = {
+      name: agent.name,
+      endpoint: agent.endpoint,
+      metadata: agent.metadata,
+      tier: agent.tier,
+      totalScore: agent.totalScore,
+      totalMaxScore: agent.totalMaxScore,
+      testCount: agent.testCount,
+      lastHeartbeatRound: globals.round,
+      registrationRound: agent.registrationRound,
+      stake: agent.stake,
+    };
+  }
 
-        this.agents(this.txn.sender).value = {
-            name: existing.name,
-            endpoint: existing.endpoint,
-            metadata: existing.metadata,
-            tier: existing.tier,
-            totalScore: existing.totalScore,
-            totalMaxScore: existing.totalMaxScore,
-            testCount: existing.testCount,
-            lastHeartbeatRound: globals.round,
-            registrationRound: existing.registrationRound,
-            stake: existing.stake,
-        };
-    }
+  deregister(): void {
+    assert(this.agents(this.txn.sender).exists);
 
-    deregister(): void {
-        assert(this.agents(this.txn.sender).exists, 'Agent not registered');
+    const agent = this.agents(this.txn.sender).value;
+    const stakeAmount = agent.stake;
 
-        const existing = clone(this.agents(this.txn.sender).value);
-        const stakeAmount = existing.stake;
+    this.agents(this.txn.sender).delete();
+    this.agentCount.value = this.agentCount.value - 1;
 
-        this.agents(this.txn.sender).delete();
-        this.agentCount.value = this.agentCount.value - 1;
+    sendPayment({
+      receiver: this.txn.sender,
+      amount: stakeAmount,
+    });
+  }
 
-        sendPayment({
-            receiver: this.txn.sender,
-            amount: stakeAmount,
-        });
-    }
+  // ── Challenge management ─────────────────────────────────────────────────
 
-    // ── Test Challenge Protocol ───────────────────────────────────
+  createChallenge(
+    challengeId: string,
+    category: string,
+    description: string,
+    maxScore: uint64
+  ): void {
+    assert(this.txn.sender === this.admin.value);
+    assert(!this.challenges(challengeId).exists);
 
-    createChallenge(
-        challengeId: string,
-        category: string,
-        description: string,
-        maxScore: uint64,
-    ): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        assert(challengeId.length > 0 && challengeId.length <= 32, 'Invalid challenge ID');
-        assert(category.length > 0 && category.length <= 32, 'Invalid category');
-        assert(!this.challenges(challengeId).exists, 'Challenge already exists');
+    this.challenges(challengeId).value = {
+      category: category,
+      description: description,
+      maxScore: maxScore,
+      active: 1,
+    };
 
-        this.challenges(challengeId).value = {
-            category: category,
-            description: description,
-            maxScore: maxScore,
-            active: 1,
-        };
+    this.challengeCount.value = this.challengeCount.value + 1;
+  }
 
-        this.challengeCount.value = this.challengeCount.value + 1;
-    }
+  deactivateChallenge(challengeId: string): void {
+    assert(this.txn.sender === this.admin.value);
+    assert(this.challenges(challengeId).exists);
 
-    deactivateChallenge(challengeId: string): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        assert(this.challenges(challengeId).exists, 'Challenge not found');
+    const challenge = this.challenges(challengeId).value;
+    this.challenges(challengeId).value = {
+      category: challenge.category,
+      description: challenge.description,
+      maxScore: challenge.maxScore,
+      active: 0,
+    };
+  }
 
-        const existing = clone(this.challenges(challengeId).value);
+  // ── Test result recording ────────────────────────────────────────────────
 
-        this.challenges(challengeId).value = {
-            category: existing.category,
-            description: existing.description,
-            maxScore: existing.maxScore,
-            active: 0,
-        };
-    }
+  recordTestResult(
+    agentAddress: Address,
+    challengeId: string,
+    score: uint64
+  ): void {
+    assert(this.txn.sender === this.admin.value);
+    assert(this.agents(agentAddress).exists);
+    assert(this.challenges(challengeId).exists);
 
-    recordTestResult(
-        agentAddress: Address,
-        challengeId: string,
-        score: uint64,
-    ): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin can record tests');
+    const challenge = this.challenges(challengeId).value;
+    assert(challenge.active === 1);
+    assert(score <= challenge.maxScore);
 
-        // Verify challenge exists and is active
-        assert(this.challenges(challengeId).exists, 'Challenge not found');
-        const challenge = clone(this.challenges(challengeId).value);
-        assert(challenge.active === 1, 'Challenge is not active');
-        assert(score <= challenge.maxScore, 'Score exceeds max');
+    // Store the test result
+    this.testResults([agentAddress, challengeId]).value = {
+      score: score,
+      maxScore: challenge.maxScore,
+      category: challenge.category,
+      round: globals.round,
+    };
 
-        // Verify agent exists
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
+    // Update agent aggregate scores
+    const agent = this.agents(agentAddress).value;
+    const newTotalScore = agent.totalScore + score;
+    const newTotalMaxScore = agent.totalMaxScore + challenge.maxScore;
+    const newTestCount = agent.testCount + 1;
 
-        // Store individual test result
-        this.testResults([agentAddress, challengeId]).value = {
-            score: score,
-            maxScore: challenge.maxScore,
-            category: challenge.category,
-            round: globals.round,
-        };
+    // Calculate tier based on test count
+    const newTier = this.calculateTier(newTestCount);
 
-        // Update agent aggregate scores
-        const agent = clone(this.agents(agentAddress).value);
-        const newTotalScore = agent.totalScore + score;
-        const newTotalMaxScore = agent.totalMaxScore + challenge.maxScore;
-        const newTestCount = agent.testCount + 1;
-        const newTier = this.calculateTier(newTotalScore, newTotalMaxScore, newTestCount);
+    this.agents(agentAddress).value = {
+      name: agent.name,
+      endpoint: agent.endpoint,
+      metadata: agent.metadata,
+      tier: newTier,
+      totalScore: newTotalScore,
+      totalMaxScore: newTotalMaxScore,
+      testCount: newTestCount,
+      lastHeartbeatRound: agent.lastHeartbeatRound,
+      registrationRound: agent.registrationRound,
+      stake: agent.stake,
+    };
+  }
 
-        this.agents(agentAddress).value = {
-            name: agent.name,
-            endpoint: agent.endpoint,
-            metadata: agent.metadata,
-            tier: newTier,
-            totalScore: newTotalScore,
-            totalMaxScore: newTotalMaxScore,
-            testCount: newTestCount,
-            lastHeartbeatRound: agent.lastHeartbeatRound,
-            registrationRound: agent.registrationRound,
-            stake: agent.stake,
-        };
-    }
+  // ── Read-only queries ────────────────────────────────────────────────────
 
-    // ── Read Methods ──────────────────────────────────────────────
+  getAgentInfo(agentAddress: Address): AgentRecord {
+    assert(this.agents(agentAddress).exists);
+    return this.agents(agentAddress).value;
+  }
 
-    getAgentTier(agentAddress: Address): uint64 {
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
-        return this.agents(agentAddress).value.tier;
-    }
+  getAgentTier(agentAddress: Address): uint64 {
+    assert(this.agents(agentAddress).exists);
+    return this.agents(agentAddress).value.tier;
+  }
 
-    getAgentScore(agentAddress: Address): uint64 {
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
-        const agent = this.agents(agentAddress).value;
-        if (agent.totalMaxScore === 0) return 0;
-        return (agent.totalScore * 100) / agent.totalMaxScore;
-    }
+  getAgentScore(agentAddress: Address): uint64 {
+    assert(this.agents(agentAddress).exists);
+    return this.agents(agentAddress).value.totalScore;
+  }
 
-    getAgentTestCount(agentAddress: Address): uint64 {
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
-        return this.agents(agentAddress).value.testCount;
-    }
+  getAgentTestCount(agentAddress: Address): uint64 {
+    assert(this.agents(agentAddress).exists);
+    return this.agents(agentAddress).value.testCount;
+  }
 
-    getAgentInfo(agentAddress: Address): AgentRecord {
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
-        return this.agents(agentAddress).value;
-    }
+  getChallengeInfo(challengeId: string): Challenge {
+    assert(this.challenges(challengeId).exists);
+    return this.challenges(challengeId).value;
+  }
 
-    getChallengeInfo(challengeId: string): Challenge {
-        assert(this.challenges(challengeId).exists, 'Challenge not found');
-        return this.challenges(challengeId).value;
-    }
+  // ── Admin operations ─────────────────────────────────────────────────────
 
-    // ── Admin ─────────────────────────────────────────────────────
+  updateMinStake(newMinStake: uint64): void {
+    assert(this.txn.sender === this.admin.value);
+    this.minStake.value = newMinStake;
+  }
 
-    updateMinStake(newMinStake: uint64): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        this.minStake.value = newMinStake;
-    }
+  transferAdmin(newAdmin: Address): void {
+    assert(this.txn.sender === this.admin.value);
+    this.admin.value = newAdmin;
+  }
 
-    transferAdmin(newAdmin: Address): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        this.admin.value = newAdmin;
-    }
+  setRegistrationOpen(open: uint64): void {
+    assert(this.txn.sender === this.admin.value);
+    this.registrationOpen.value = open;
+  }
 
-    setRegistrationOpen(open: uint64): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        assert(open === 0 || open === 1, 'Must be 0 or 1');
-        this.registrationOpen.value = open;
-    }
+  adminRemoveAgent(agentAddress: Address): void {
+    assert(this.txn.sender === this.admin.value);
+    assert(this.agents(agentAddress).exists);
 
-    adminRemoveAgent(agentAddress: Address): void {
-        assert(this.txn.sender === this.admin.value, 'Only admin');
-        assert(this.agents(agentAddress).exists, 'Agent not registered');
+    const agent = this.agents(agentAddress).value;
+    const stakeAmount = agent.stake;
 
-        const agent = clone(this.agents(agentAddress).value);
+    this.agents(agentAddress).delete();
+    this.agentCount.value = this.agentCount.value - 1;
 
-        this.agents(agentAddress).delete();
-        this.agentCount.value = this.agentCount.value - 1;
+    sendPayment({
+      receiver: agentAddress,
+      amount: stakeAmount,
+    });
+  }
 
-        sendPayment({
-            receiver: agentAddress,
-            amount: agent.stake,
-        });
-    }
+  // ── Internal helpers ─────────────────────────────────────────────────────
 
-    // ── Internal Helpers ──────────────────────────────────────────
-
-    private calculateTier(
-        totalScore: uint64,
-        totalMaxScore: uint64,
-        testCount: uint64,
-    ): uint64 {
-        if (testCount === 0) return TIER_REGISTERED;
-
-        const percentage = (totalScore * 100) / totalMaxScore;
-
-        if (testCount >= 5 && percentage >= 80) return TIER_TRUSTED;
-        if (testCount >= 3 && percentage >= 60) return TIER_ESTABLISHED;
-        return TIER_TESTED;
-    }
+  private calculateTier(testCount: uint64): uint64 {
+    if (testCount >= 10) return TIER_TRUSTED;
+    if (testCount >= 5) return TIER_ESTABLISHED;
+    if (testCount >= 1) return TIER_TESTED;
+    return TIER_REGISTERED;
+  }
 }
