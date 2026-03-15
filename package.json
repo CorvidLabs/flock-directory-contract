@@ -28,5 +28,8 @@
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
+  },
+  "patchedDependencies": {
+    "@algorandfoundation/algokit-utils@9.2.0": "patches/@algorandfoundation%2Falgokit-utils@9.2.0.patch"
   }
 }

@@ -1,0 +1,13 @@
+diff --git a/testing/account.mjs b/testing/account.mjs
+index a1b1c7ca5a139a862b5f4b8c6243cce8dfd48d8e..3818b92ed936e65b2ebe789dba6fc0083195c6d3 100644
+--- a/testing/account.mjs
++++ b/testing/account.mjs
+@@ -20,7 +20,7 @@ async function getTestAccount({ suppressLog, initialFunds, accountGetter }, algo
+         suppressLog,
+     });
+     const accountInfo = await algorand.account.getInformation(account.addr);
+-    Config.getLogger(suppressLog).info('Test account funded; account balance: %d µALGO', accountInfo.balance.microAlgo);
++    Config.getLogger(suppressLog).info('Test account funded; account balance: %s µALGO', String(accountInfo.balance.microAlgo));
+     algorand.setSignerFromAccount(account);
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     const address = Address.fromString(account.addr.toString());
