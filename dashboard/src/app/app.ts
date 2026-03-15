@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { HeaderComponent } from './components/header/header';
 import { AgentListComponent } from './components/agent-list/agent-list';
 import { AgentCardComponent } from './components/agent-card/agent-card';
@@ -34,7 +34,7 @@ export class App implements OnInit, OnDestroy {
 
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private algorand: AlgorandService) {}
+  constructor(private algorand: AlgorandService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadData();
@@ -64,6 +64,7 @@ export class App implements OnInit, OnDestroy {
       this.error = e.message ?? 'Failed to fetch data';
     } finally {
       this.loading = false;
+      this.cdr.markForCheck();
     }
   }
 
