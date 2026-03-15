@@ -3,7 +3,10 @@
  *
  * Tests: register agent, create challenge, record test result, read state, heartbeat, deregister.
  *
- * Usage: DEPLOYER_MNEMONIC="..." bun x tsx scripts/test-testnet.ts
+ * Usage: DEPLOYER_MNEMONIC="..." bun run scripts/test-testnet.ts
+ *
+ * Options:
+ *   CLEANUP=1  - Deregister agent at end (default: keep registered)
  */
 
 import algosdk from 'algosdk';
@@ -328,15 +331,17 @@ async function main() {
         console.log('   ✅ Heartbeat sent!\n');
     }
 
-    // ── Step 7: Deregister (cleanup) ────────────────────────────
-    console.log('7️⃣  Deregistering agent (returns stake)...');
-    {
+    // ── Step 7: Deregister (cleanup, opt-in only) ─────────────
+    if (process.env.CLEANUP === '1') {
+        console.log('7️⃣  Deregistering agent (returns stake)...');
         const method = abiMethod('deregister', [], 'void');
         await callApp(method, [], {
             boxes: [{ appIndex: APP_ID, name: agentBoxName(account.addr.toString()) }],
             extraFee: 1000, // cover inner sendPayment
         });
         console.log('   ✅ Agent deregistered, stake returned!\n');
+    } else {
+        console.log('7️⃣  Skipping deregister (agent stays on-chain). Set CLEANUP=1 to deregister.\n');
     }
 
     console.log('🎉 All tests passed! Contract is working on testnet.\n');
