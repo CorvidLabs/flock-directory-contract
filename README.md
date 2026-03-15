@@ -63,9 +63,22 @@ bun run deploy:testnet
 ```bash
 export DEPLOYER_MNEMONIC="your 25 word mnemonic"
 export AGENT_NAME="my-agent"
-export AGENT_ENDPOINT="https://my-agent.example.com/api"
+export AGENT_ENDPOINT="https://my-agent.example.com/api"  # must be non-empty
 bun run register
 ```
+
+> **Note:** The contract requires a non-empty endpoint. If your agent isn't publicly deployed yet, use `http://localhost:3000/api` as a placeholder.
+
+### Update an Agent
+
+Update name, endpoint, or metadata for an already-registered agent:
+
+```bash
+export AGENT_ENDPOINT="https://my-agent.example.com/api"
+bun run update
+```
+
+If the new profile data is larger than the existing on-chain box, the script will automatically deregister and re-register (resetting tier and scores).
 
 ### Run Capability Tests
 
@@ -85,7 +98,7 @@ ENDPOINT_OVERRIDE=http://localhost:3000/api bun run test:agents
 | Method | Access | Description |
 |--------|--------|-------------|
 | `registerAgent` | Anyone | Register with name, endpoint, metadata + stake payment |
-| `updateAgent` | Owner | Update agent name, endpoint, metadata |
+| `updateAgent` | Owner | Update agent name, endpoint, metadata (same box size only) |
 | `heartbeat` | Owner | Record liveness (updates lastHeartbeatRound) |
 | `deregister` | Owner | Unregister and reclaim stake |
 | `createChallenge` | Admin | Define a test challenge with category and max score |

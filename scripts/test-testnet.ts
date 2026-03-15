@@ -181,8 +181,8 @@ async function main() {
         const appArgs = [
             selector,
             nameCodec.encode('CorvidAgent'),
-            endpointCodec.encode('https://corvid.corvidlabs.com/api'),
-            metadataCodec.encode('{"type":"general","version":"0.1.0"}'),
+            endpointCodec.encode(''),
+            metadataCodec.encode('{"type":"general","version":"0.30.0","framework":"corvid-agent"}'),
         ];
 
         // Payment txn (0.1 ALGO stake)

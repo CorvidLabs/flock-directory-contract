@@ -11,6 +11,7 @@
     "deploy:testnet": "npx tsx scripts/deploy-testnet.ts",
     "deploy:localnet": "npx tsx scripts/deploy-localnet.ts",
     "register": "bun run scripts/register-agent.ts",
+    "update": "bun run scripts/update-agent.ts",
     "test:agents": "ENDPOINT_OVERRIDE=http://127.0.0.1:3000/api bun run scripts/test-runner.ts",
     "test:agents:dry": "DRY_RUN=1 VERBOSE=1 ENDPOINT_OVERRIDE=http://127.0.0.1:3000/api bun run scripts/test-runner.ts",
     "test:agents:remote": "bun run scripts/test-runner.ts"

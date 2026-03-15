@@ -9,7 +9,8 @@
  *
  * Options (env vars):
  *   AGENT_NAME      - Agent display name (default: "CorvidAgent")
- *   AGENT_ENDPOINT  - Agent API endpoint (default: "https://corvid.corvidlabs.com/api")
+ *   AGENT_ENDPOINT  - Agent API endpoint (default: "http://localhost:3000/api")
+ *   AGENT_STAKE     - Stake amount in microALGOs (default: 1000000 = 1 ALGO)
  *   AGENT_METADATA  - JSON metadata string (default: auto-generated)
  *   SKIP_HEARTBEAT  - Set to "1" to skip sending a heartbeat after registration
  */
@@ -56,12 +57,13 @@ async function main() {
     const appAddr = algosdk.getApplicationAddress(APP_ID);
 
     const agentName = process.env.AGENT_NAME || 'CorvidAgent';
-    const agentEndpoint = process.env.AGENT_ENDPOINT || 'https://corvid.corvidlabs.com/api';
+    const agentEndpoint = process.env.AGENT_ENDPOINT || 'http://localhost:3000/api';
     const agentMetadata = process.env.AGENT_METADATA || JSON.stringify({
         type: 'general',
-        version: '0.1.0',
-        capabilities: ['chat', 'code', 'research'],
+        version: '0.30.0',
+        capabilities: ['chat', 'code', 'research', 'a2a', 'algochat', 'councils', 'workflows', 'scheduling', 'github'],
         framework: 'corvid-agent',
+        protocols: ['a2a', 'mcp', 'algochat'],
     });
 
     console.log(`\nFlockDirectory Agent Registration (App ${APP_ID})`);
@@ -82,23 +84,48 @@ async function main() {
 
     if (alreadyRegistered) {
         console.log('Agent is already registered on-chain.');
-        console.log('Sending heartbeat to update liveness...\n');
 
-        const sp = await algod.getTransactionParams().do();
-        const heartbeatMethod = abiMethod('heartbeat', [], 'void');
-        const appArgs = [heartbeatMethod.getSelector()];
-        const txn = algosdk.makeApplicationNoOpTxnFromObject({
-            sender: account.addr,
-            appIndex: APP_ID,
-            appArgs,
-            boxes: [{ appIndex: APP_ID, name: boxName }],
-            suggestedParams: sp,
-        });
-        const signed = txn.signTxn(account.sk);
-        await algod.sendRawTransaction(signed).do();
-        await algosdk.waitForConfirmation(algod, txn.txID(), 4);
-        console.log('Heartbeat sent.\n');
-    } else {
+        if (process.env.FORCE_REREGISTER === '1') {
+            // Deregister first, then re-register with fresh data
+            console.log('FORCE_REREGISTER=1 — deregistering to re-register with new profile...\n');
+
+            const sp = await algod.getTransactionParams().do();
+            sp.fee = (sp.fee || 1000) + 1000; // extra fee for inner payment
+            sp.flatFee = true;
+            const deregMethod = abiMethod('deregister', [], 'void');
+            const deregTxn = algosdk.makeApplicationNoOpTxnFromObject({
+                sender: account.addr,
+                appIndex: APP_ID,
+                appArgs: [deregMethod.getSelector()],
+                boxes: [{ appIndex: APP_ID, name: boxName }],
+                suggestedParams: sp,
+            });
+            const signedDereg = deregTxn.signTxn(account.sk);
+            await algod.sendRawTransaction(signedDereg).do();
+            await algosdk.waitForConfirmation(algod, deregTxn.txID(), 4);
+            console.log('Deregistered. Re-registering...\n');
+        } else {
+            console.log('Sending heartbeat to update liveness...');
+            console.log('(Set FORCE_REREGISTER=1 to deregister and re-register with new profile)\n');
+
+            const sp = await algod.getTransactionParams().do();
+            const heartbeatMethod = abiMethod('heartbeat', [], 'void');
+            const appArgs = [heartbeatMethod.getSelector()];
+            const txn = algosdk.makeApplicationNoOpTxnFromObject({
+                sender: account.addr,
+                appIndex: APP_ID,
+                appArgs,
+                boxes: [{ appIndex: APP_ID, name: boxName }],
+                suggestedParams: sp,
+            });
+            const signed = txn.signTxn(account.sk);
+            await algod.sendRawTransaction(signed).do();
+            await algosdk.waitForConfirmation(algod, txn.txID(), 4);
+            console.log('Heartbeat sent.\n');
+        }
+    }
+
+    if (!alreadyRegistered || process.env.FORCE_REREGISTER === '1') {
         // Register the agent
         console.log('Registering agent on-chain...');
         const sp = await algod.getTransactionParams().do();
@@ -125,11 +152,12 @@ async function main() {
             metadataCodec.encode(agentMetadata),
         ];
 
-        // Payment txn for stake (0.1 ALGO)
+        // Payment txn for stake (1 ALGO default, override with AGENT_STAKE env var in microALGOs)
+        const stakeAmount = Number(process.env.AGENT_STAKE) || 1_000_000;
         const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
             sender: account.addr,
             receiver: appAddr,
-            amount: 100_000,
+            amount: stakeAmount,
             suggestedParams: sp,
         });
 
