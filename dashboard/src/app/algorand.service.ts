@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import algosdk from 'algosdk';
-import { APP_ID, ALGOD_URL, ALGOD_TOKEN, INDEXER_URL } from './config';
+import { APP_ID, ALGOD_URL, INDEXER_URL } from './config';
 import type { AgentRecord, Challenge, TestResult, GlobalState, DirectoryData } from './types';
 
 @Injectable({ providedIn: 'root' })
 export class AlgorandService {
-  private algodClient = new algosdk.Algodv2(ALGOD_TOKEN, ALGOD_URL);
 
   // ── Helpers ──────────────────────────────────────────────────────
 
@@ -26,10 +25,6 @@ export class AlgorandService {
     const bytes = data.slice(offset + 2, offset + 2 + len);
     const value = new TextDecoder().decode(bytes);
     return { value, bytesRead: 2 + len };
-  }
-
-  private uint8ArrayToString(arr: Uint8Array): string {
-    return new TextDecoder().decode(arr);
   }
 
   // ── ABI Decoding ─────────────────────────────────────────────────
@@ -140,15 +135,22 @@ export class AlgorandService {
   }
 
   private async getBoxValue(nameBytes: Uint8Array): Promise<Uint8Array> {
-    const resp = await this.algodClient.getApplicationBoxByName(APP_ID, nameBytes).do();
-    return resp.value;
+    const b64Name = btoa(String.fromCharCode(...nameBytes));
+    const url = `${ALGOD_URL}/v2/applications/${APP_ID}/box?name=b64:${encodeURIComponent(b64Name)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Box request failed: ${resp.status}`);
+    const json = await resp.json();
+    return Uint8Array.from(atob(json.value), (c) => c.charCodeAt(0));
   }
 
   // ── Global state ─────────────────────────────────────────────────
 
   async fetchGlobalState(): Promise<GlobalState> {
-    const appInfo = await this.algodClient.getApplicationByID(APP_ID).do();
-    const gs = (appInfo as any).params.globalState ?? [];
+    const resp = await fetch(`${ALGOD_URL}/v2/applications/${APP_ID}`);
+    if (!resp.ok) throw new Error(`App info request failed: ${resp.status}`);
+    const appInfo = await resp.json();
+    const gs: Array<{ key: string; value: { bytes: string; type: number; uint: number } }> =
+      appInfo.params?.['global-state'] ?? [];
 
     const state: GlobalState = {
       agentCount: 0,
@@ -159,16 +161,19 @@ export class AlgorandService {
     };
 
     for (const entry of gs) {
-      const key = this.uint8ArrayToString(entry.key);
+      const key = atob(entry.key);
       const val = entry.value;
 
-      if (key === 'agent_count') state.agentCount = Number(val.uint);
-      else if (key === 'chal_count') state.challengeCount = Number(val.uint);
-      else if (key === 'min_stake') state.minStake = Number(val.uint);
-      else if (key === 'reg_open') state.registrationOpen = Number(val.uint) === 1;
-      else if (key === 'admin' && val.bytes.length === 32) {
+      if (key === 'agent_count') state.agentCount = val.uint;
+      else if (key === 'chal_count') state.challengeCount = val.uint;
+      else if (key === 'min_stake') state.minStake = val.uint;
+      else if (key === 'reg_open') state.registrationOpen = val.uint === 1;
+      else if (key === 'admin' && val.bytes) {
         try {
-          state.admin = algosdk.encodeAddress(val.bytes);
+          const bytes = Uint8Array.from(atob(val.bytes), (c) => c.charCodeAt(0));
+          if (bytes.length === 32) {
+            state.admin = algosdk.encodeAddress(bytes);
+          }
         } catch {
           // ignore
         }
