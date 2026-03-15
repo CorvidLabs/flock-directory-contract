@@ -64,28 +64,38 @@ async function main() {
     const globalSchema = arc56.state?.schema?.global || {};
     const localSchema = arc56.state?.schema?.local || {};
 
-    // Create application
+    // Create application with ABI method selector for createApplication()void
     console.log('Creating application...');
+    const createMethod = new algosdk.ABIMethod({
+        name: 'createApplication',
+        args: [],
+        returns: { type: 'void' },
+    });
+    const methodSelector = createMethod.getSelector();
+
     const txn = algosdk.makeApplicationCreateTxnFromObject({
-        from: account.addr,
+        sender: account.addr,
         approvalProgram: approvalBytes,
         clearProgram: clearBytes,
-        numGlobalInts: globalSchema['num-uint'] || 5,
-        numGlobalByteSlices: globalSchema['num-byte-slice'] || 1,
-        numLocalInts: localSchema['num-uint'] || 0,
-        numLocalByteSlices: localSchema['num-byte-slice'] || 0,
+        numGlobalInts: globalSchema.ints || globalSchema['num-uint'] || 5,
+        numGlobalByteSlices: globalSchema.bytes || globalSchema['num-byte-slice'] || 1,
+        numLocalInts: localSchema.ints || localSchema['num-uint'] || 0,
+        numLocalByteSlices: localSchema.bytes || localSchema['num-byte-slice'] || 0,
+        extraPages: 1,
+        appArgs: [methodSelector],
         suggestedParams,
         onComplete: algosdk.OnApplicationComplete.NoOpOC,
     });
 
     const signedTxn = txn.signTxn(account.sk);
-    const { txId } = await algod.sendRawTransaction(signedTxn).do();
+    const sendResponse = await algod.sendRawTransaction(signedTxn).do();
+    const txId = txn.txID();
     console.log(`Transaction ID: ${txId}`);
 
     // Wait for confirmation
     console.log('Waiting for confirmation...');
     const confirmedTxn = await algosdk.waitForConfirmation(algod, txId, 4);
-    const appId = confirmedTxn['application-index'];
+    const appId = Number(confirmedTxn['applicationIndex']);
 
     console.log('');
     console.log('=== Deployment Successful ===');
@@ -115,6 +125,9 @@ async function main() {
 }
 
 main().catch((err) => {
-    console.error('Deployment failed:', err);
+    console.error('Deployment failed:', err.message || err);
+    if (err.response) {
+        console.error('Response body:', err.response.body);
+    }
     process.exit(1);
 });

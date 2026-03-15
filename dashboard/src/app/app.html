@@ -1,0 +1,45 @@
+<div class="app">
+  <app-header
+    [globalState]="globalState"
+    [loading]="loading"
+    [lastRefresh]="lastRefresh"
+    [appId]="appId"
+    (refresh)="loadData()"
+  />
+
+  @if (error) {
+    <div class="error-banner">
+      <span>{{ error }}</span>
+      <button (click)="loadData()">Retry</button>
+    </div>
+  }
+
+  @if (loading && !globalState) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>Loading directory data...</span>
+    </div>
+  } @else {
+    <div class="main-content">
+      <div class="grid-row">
+        <div>
+          <app-agent-list
+            [agents]="agents"
+            [selectedAddress]="selectedAgent?.address ?? null"
+            (selectAgent)="onSelectAgent($event)"
+          />
+        </div>
+        <app-reputation-chart [agents]="agents" />
+      </div>
+
+      @if (selectedAgent) {
+        <app-agent-card
+          [agent]="selectedAgent"
+          [agentResults]="selectedAgentResults"
+        />
+      }
+
+      <app-challenge-list [challenges]="challenges" />
+    </div>
+  }
+</div>
