@@ -3,15 +3,43 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - contracts/**
+      - bridge/**
+      - scripts/**
+      - tests/**
+      - artifacts/**
+      - package.json
+      - bun.lock
+      - tsconfig.json
+      - vitest.config.ts
+      - .github/workflows/ci.yml
   pull_request:
     branches: [main]
+    paths:
+      - contracts/**
+      - bridge/**
+      - scripts/**
+      - tests/**
+      - artifacts/**
+      - package.json
+      - bun.lock
+      - tsconfig.json
+      - vitest.config.ts
+      - .github/workflows/ci.yml
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
     name: Typecheck, Build & Test
+    # Needs GitHub-hosted Linux for AlgoKit localnet (Docker) + pipx
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: oven-sh/setup-bun@v2
         with:
