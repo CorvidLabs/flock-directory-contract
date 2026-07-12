@@ -1,0 +1,9 @@
+# fledge.toml — project task definitions
+[tasks]
+typecheck = "bash -o pipefail -c 'bun x tsc --noEmit 2>&1 | tee /tmp/flock-tsc-output.txt || true; if grep -v node_modules /tmp/flock-tsc-output.txt | grep \"error TS\" >/dev/null 2>&1; then grep -v node_modules /tmp/flock-tsc-output.txt | grep \"error TS\"; exit 1; fi'"
+build = "bun run build"
+test = "bun run test"
+
+[lanes.verify]
+description = "Typecheck, compile, and test the Flock Directory contract on localnet"
+steps = ["typecheck", "build", "test"]

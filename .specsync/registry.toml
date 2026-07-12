@@ -1,0 +1,5 @@
+[registry]
+name = "flock-directory-contract-trust-wave7"
+
+[specs]
+flock-directory = "specs/flock-directory/flock-directory.spec.md"
