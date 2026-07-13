@@ -36,7 +36,7 @@
     "specs/"
   ],
   "verification_commands": [
-    "bash -o pipefail -c 'bun x tsc --noEmit 2>&1 | tee /tmp/flock-tsc-output.txt || true; if grep -v node_modules /tmp/flock-tsc-output.txt | grep \"error TS\" >/dev/null 2>&1; then exit 1; fi' && bun run build && bun run test"
+    "fledge lanes run verify"
   ],
   "custom_artifacts": {},
   "principles_file": null

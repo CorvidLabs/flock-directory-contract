@@ -1,3 +1,18 @@
 {
-  "approvals": []
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1783949834,
+      "digest": "6d23e4f6939fc57ca348248ac7bcfa5e027826577ccee80a6fc9f6327f9d8743",
+      "note": "Authorized portable definition approval for the reviewed governance-only migration; no hosted CI or closing approval is claimed."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1783950168,
+      "digest": "a02d51668ac88f208fab3016f158b87c046c636d7e9e9524d31dbdaf0743449c",
+      "note": "Native Fledge localnet lane passed: typecheck policy, TEALScript build, and 46 contract tests; governance-only semantics confirmed."
+    }
+  ]
 }
