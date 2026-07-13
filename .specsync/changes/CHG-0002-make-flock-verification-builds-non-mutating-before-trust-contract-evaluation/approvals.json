@@ -6,6 +6,13 @@
       "timestamp": 1783950857,
       "digest": "e7142c8119e16f8336790408c112c99be90c1339a2034fbdd9796efff5b988ba",
       "note": "Authorized portable definition approval for a non-mutating verification build; hosted CI and closing approval are not claimed."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1783951080,
+      "digest": "dd9739fe743db913bde4d7cca894fdec0be182c3f4bad06d7d7c7a1206cbf536",
+      "note": "Native verification passed from committed delivery inputs: non-mutating TEALScript build and all 46 localnet contract tests."
     }
   ]
 }
