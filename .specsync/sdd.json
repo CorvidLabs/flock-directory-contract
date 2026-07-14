@@ -29,12 +29,14 @@
     "contracts/",
     "bridge/src/",
     "dashboard/src/",
-    "scripts/"
+    "scripts/",
+    "specs/",
+    ".trust.toml",
+    "fledge.toml",
+    "README.md",
+    "AGENTS.md"
   ],
-  "ignored_paths": [
-    ".specsync/",
-    "specs/"
-  ],
+  "ignored_paths": [],
   "verification_commands": [
     "fledge lanes run verify"
   ],

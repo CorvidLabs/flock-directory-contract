@@ -28,5 +28,41 @@
       "digest": "6b20f2102b4214c16f8fec9c2e07aa8e9008ccd56ff6d9380adc14dfa57bdda9",
       "note": "Fresh closing approval under explicit audit-risk authorization after successful committed-head native re-verification."
     }
+  ],
+  "reopenings": [
+    {
+      "schema_version": 1,
+      "change_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-flock-directory-contract",
+      "actor": "user:0xLeif",
+      "reason": "Final 100% coverage correction changes canonical governance inputs and requires fresh native verification and closing approval.",
+      "timestamp": 1784014338,
+      "from_state": "accepted",
+      "to_state": "verifying",
+      "superseded_approval": {
+        "gate": "acceptance",
+        "actor": "user:0xLeif",
+        "timestamp": 1783957800,
+        "digest": "6b20f2102b4214c16f8fec9c2e07aa8e9008ccd56ff6d9380adc14dfa57bdda9",
+        "note": "Fresh closing approval under explicit audit-risk authorization after successful committed-head native re-verification."
+      },
+      "prior_verification": {
+        "timestamp": 1783957708,
+        "commit": "31ada5831f3b320c21bd94e492ad8b07849af1c4",
+        "contract_digest": "6d23e4f6939fc57ca348248ac7bcfa5e027826577ccee80a6fc9f6327f9d8743",
+        "workspace_digest": "134fef7e46d7ea53efffce40401df35be5588312bdd1e21d432a064077c3cbf1",
+        "acceptance_input_digest": "bec64fd79a1e452fd1616d7e8ce970f7aa51f2d8a73fcd4dbaeb1f9c94d2ca92",
+        "passed": true,
+        "commands": [
+          {
+            "command": "fledge lanes run verify",
+            "success": true,
+            "exit_code": 0
+          }
+        ],
+        "requirement_ids": []
+      },
+      "stale_acceptance_input_digest": "bec64fd79a1e452fd1616d7e8ce970f7aa51f2d8a73fcd4dbaeb1f9c94d2ca92",
+      "current_acceptance_input_digest": "547e44721b17def9e3e9939aea6c35752d6c4db9e3432a75cdf25f239bb8bd17"
+    }
   ]
 }

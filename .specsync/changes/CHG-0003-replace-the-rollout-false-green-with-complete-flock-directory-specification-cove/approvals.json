@@ -1,0 +1,12 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784014000,
+      "digest": "b914a4ac1f2593fc486d6ad73cf7460bd3b207f3c1399316ff9b0403ed80601c",
+      "note": "Approved complete source-to-spec mapping, truthful execution boundaries, and blocking 100% coverage without product semantic changes."
+    }
+  ],
+  "reopenings": []
+}

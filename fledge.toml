@@ -1,11 +1,16 @@
 # fledge.toml — project task definitions
 [tasks]
 typecheck = "bash -o pipefail -c 'bun x tsc --noEmit 2>&1 | tee /tmp/flock-tsc-output.txt || true; if grep -v node_modules /tmp/flock-tsc-output.txt | grep \"error TS\" >/dev/null 2>&1; then grep -v node_modules /tmp/flock-tsc-output.txt | grep \"error TS\"; exit 1; fi'"
+bridge-install = "bun install --cwd bridge --frozen-lockfile"
+bridge-typecheck = "bun run --cwd bridge typecheck"
+dashboard-install = "bun install --cwd dashboard --frozen-lockfile"
+dashboard-build = "bun run --cwd dashboard build"
 build = "bun run build"
 prepare-verify = "mkdir -p dist/verification-artifacts"
 build-verify = "bun x tealscript contracts/*.algo.ts dist/verification-artifacts"
+verify-artifacts = "bun run scripts/verify-artifacts.ts"
 test = "bun run test"
 
 [lanes.verify]
-description = "Typecheck, compile, and test the Flock Directory contract on localnet"
-steps = ["typecheck", "prepare-verify", "build-verify", "test"]
+description = "Validate all packages, reproduce contract artifacts, and test the Flock Directory contract on localnet"
+steps = ["typecheck", "bridge-install", "bridge-typecheck", "dashboard-install", "dashboard-build", "prepare-verify", "build-verify", "verify-artifacts", "test"]

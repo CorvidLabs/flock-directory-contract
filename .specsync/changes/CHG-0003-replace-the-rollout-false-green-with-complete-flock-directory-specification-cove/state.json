@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "CHG-0003-replace-the-rollout-false-green-with-complete-flock-directory-specification-cove",
+  "slug": "replace-the-rollout-false-green-with-complete-flock-directory-specification-cove",
+  "title": "Replace the rollout false-green with complete Flock Directory specification coverage and a blocking 100% Trust contract gate",
+  "description": "Replace the rollout false-green with complete Flock Directory specification coverage and a blocking 100% Trust contract gate",
+  "kind": "bug_fix",
+  "state": "implementing",
+  "base_commit": "3d33f52f2dc0cae012499db4648b0ceb4d0be6af",
+  "created_at": 1784013812,
+  "updated_at": 1784014000,
+  "affected_specs": [
+    "flock-directory"
+  ],
+  "affected_paths": [
+    "specs/flock-directory",
+    ".specsync/sdd.json",
+    ".trust.toml",
+    ".specsync/change-sequence.json"
+  ],
+  "no_spec_change": false,
+  "no_spec_change_rationale": null,
+  "acceptance_criteria": [
+    "Canonical Flock Directory specs map every governed contract",
+    "bridge",
+    "dashboard",
+    "and operational script file; requirements describe existing behavior without semantic changes; portable and released SpecSync report 100% file and LOC coverage; Trust requires 100%; native non-mutating verification passes; all four agent integrations remain installed."
+  ],
+  "selected_artifacts": [
+    "context",
+    "testing",
+    "tasks",
+    "research",
+    "design",
+    "plan"
+  ],
+  "dependencies": [],
+  "answers": {
+    "architecture_risk": "yes",
+    "public_contract": "no"
+  }
+}
