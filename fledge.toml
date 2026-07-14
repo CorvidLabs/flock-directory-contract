@@ -4,7 +4,7 @@ typecheck = "bash -o pipefail -c 'bun x tsc --noEmit 2>&1 | tee /tmp/flock-tsc-o
 bridge-install = "bun install --cwd bridge --frozen-lockfile"
 bridge-typecheck = "bun run --cwd bridge typecheck"
 dashboard-install = "bun install --cwd dashboard --frozen-lockfile"
-dashboard-build = "bun run --cwd dashboard build"
+dashboard-build = "CI=1 NG_BUILD_MAX_WORKERS=1 bun run --cwd dashboard build -- --no-progress"
 build = "bun run build"
 prepare-verify = "mkdir -p dist/verification-artifacts"
 build-verify = "bun x tealscript contracts/*.algo.ts dist/verification-artifacts"
