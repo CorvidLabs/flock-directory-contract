@@ -14,5 +14,41 @@
       "digest": "dd9739fe743db913bde4d7cca894fdec0be182c3f4bad06d7d7c7a1206cbf536",
       "note": "Native verification passed from committed delivery inputs: non-mutating TEALScript build and all 46 localnet contract tests."
     }
+  ],
+  "reopenings": [
+    {
+      "schema_version": 1,
+      "change_id": "CHG-0002-make-flock-verification-builds-non-mutating-before-trust-contract-evaluation",
+      "actor": "user:0xLeif",
+      "reason": "Review-corrected verification now adds deterministic artifact comparison plus bridge and dashboard validation while preserving the non-mutating build contract.",
+      "timestamp": 1784015052,
+      "from_state": "accepted",
+      "to_state": "verifying",
+      "superseded_approval": {
+        "gate": "acceptance",
+        "actor": "user:0xLeif",
+        "timestamp": 1783951080,
+        "digest": "dd9739fe743db913bde4d7cca894fdec0be182c3f4bad06d7d7c7a1206cbf536",
+        "note": "Native verification passed from committed delivery inputs: non-mutating TEALScript build and all 46 localnet contract tests."
+      },
+      "prior_verification": {
+        "timestamp": 1783951069,
+        "commit": "77312f4010a47cc2684e083f864578b3c1780f2f",
+        "contract_digest": "e7142c8119e16f8336790408c112c99be90c1339a2034fbdd9796efff5b988ba",
+        "workspace_digest": "134fef7e46d7ea53efffce40401df35be5588312bdd1e21d432a064077c3cbf1",
+        "acceptance_input_digest": "e4e820118fe8cabe2a0f653fc98a780958e4a1145ae4b878fe24db06e0e55d0f",
+        "passed": true,
+        "commands": [
+          {
+            "command": "fledge lanes run verify",
+            "success": true,
+            "exit_code": 0
+          }
+        ],
+        "requirement_ids": []
+      },
+      "stale_acceptance_input_digest": "e4e820118fe8cabe2a0f653fc98a780958e4a1145ae4b878fe24db06e0e55d0f",
+      "current_acceptance_input_digest": "6a174a7a6eb4d88368ac21a432f15469157a7989fba916aff17aba3c486e8c47"
+    }
   ]
 }

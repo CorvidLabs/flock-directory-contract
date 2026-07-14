@@ -6,6 +6,13 @@
       "timestamp": 1784014000,
       "digest": "b914a4ac1f2593fc486d6ad73cf7460bd3b207f3c1399316ff9b0403ed80601c",
       "note": "Approved complete source-to-spec mapping, truthful execution boundaries, and blocking 100% coverage without product semantic changes."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784015045,
+      "digest": "24e89499bcaa76404186750a5a40db90071716ef43f6c4cff25470a664591ca6",
+      "note": "Reapproved after adding complete exported-symbol documentation and non-semantic review corrections for bridge, dashboard, and generated-artifact verification."
     }
   ],
   "reopenings": []

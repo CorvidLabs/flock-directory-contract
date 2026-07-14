@@ -1,6 +1,6 @@
 ---
 id: CHG-0002-make-flock-verification-builds-non-mutating-before-trust-contract-evaluation
-state: accepted
+state: verifying
 type: bug_fix
 base_commit: 3e6524beb64410195892091086244b84990c1ef4
 ---
