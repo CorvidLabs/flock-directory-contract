@@ -1,6 +1,6 @@
 ---
 module: flock-directory
-version: 2
+version: 3
 status: active
 files:
   - contracts/flock-directory.algo.ts
@@ -208,3 +208,4 @@ Then the contract advances the agent to the corresponding deterministic reputati
 |---------|------|---------|
 | 1 | 2026-07-12 | Initial spec |
 | 2 | 2026-07-14 | Map the complete contract, bridge, dashboard, and operations source surface without changing behavior |
+| 3 | 2026-07-15 | CHG-0003-replace-the-rollout-false-green-with-complete-flock-directory-specification-cove: Replace the rollout false-green with complete Flock Directory specification coverage and a blocking 100% Trust contract gate |

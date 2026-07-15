@@ -13,6 +13,13 @@
       "timestamp": 1783951080,
       "digest": "dd9739fe743db913bde4d7cca894fdec0be182c3f4bad06d7d7c7a1206cbf536",
       "note": "Native verification passed from committed delivery inputs: non-mutating TEALScript build and all 46 localnet contract tests."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784085124,
+      "digest": "5ee391610eca12a25286e81912a1a0c1c37af6a3ad1b18a284ab39275f3d1603",
+      "note": "Fresh closing approval after exact committed-head verification: non-mutating compilation, artifact comparison, package validation, and 46 LocalNet tests passed; no hosted result is claimed."
     }
   ],
   "reopenings": [

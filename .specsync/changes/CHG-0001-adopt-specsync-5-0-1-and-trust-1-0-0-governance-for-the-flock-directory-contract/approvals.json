@@ -27,6 +27,13 @@
       "timestamp": 1783957800,
       "digest": "6b20f2102b4214c16f8fec9c2e07aa8e9008ccd56ff6d9380adc14dfa57bdda9",
       "note": "Fresh closing approval under explicit audit-risk authorization after successful committed-head native re-verification."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784085119,
+      "digest": "2f32cc7160d782078cf81a4d1c0fc04e7c1e4d52405a61dbbfd2a23e75446b3c",
+      "note": "Fresh closing approval after exact committed-head verification: all nine Fledge steps passed, artifacts matched, and 46 LocalNet tests passed; no hosted result is claimed."
     }
   ],
   "reopenings": [
@@ -63,6 +70,40 @@
       },
       "stale_acceptance_input_digest": "bec64fd79a1e452fd1616d7e8ce970f7aa51f2d8a73fcd4dbaeb1f9c94d2ca92",
       "current_acceptance_input_digest": "547e44721b17def9e3e9939aea6c35752d6c4db9e3432a75cdf25f239bb8bd17"
+    },
+    {
+      "schema_version": 1,
+      "change_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-flock-directory-contract",
+      "actor": "user:0xLeif",
+      "reason": "CHG-0003 atomically applied the reviewed canonical coverage delta after the predecessor acceptance, so CHG-0001 requires fresh evidence against the final delivery inputs.",
+      "timestamp": 1784085156,
+      "from_state": "accepted",
+      "to_state": "verifying",
+      "superseded_approval": {
+        "gate": "acceptance",
+        "actor": "user:0xLeif",
+        "timestamp": 1784085119,
+        "digest": "2f32cc7160d782078cf81a4d1c0fc04e7c1e4d52405a61dbbfd2a23e75446b3c",
+        "note": "Fresh closing approval after exact committed-head verification: all nine Fledge steps passed, artifacts matched, and 46 LocalNet tests passed; no hosted result is claimed."
+      },
+      "prior_verification": {
+        "timestamp": 1784084823,
+        "commit": "c4df20d4b46a7d1693f9fcae61fb801d8f1e0693",
+        "contract_digest": "6d23e4f6939fc57ca348248ac7bcfa5e027826577ccee80a6fc9f6327f9d8743",
+        "workspace_digest": "4fd13fead8eef1f4b819f9adad09ff77eb2c9c37bad1f3033bd4fd4402a6507e",
+        "acceptance_input_digest": "9c8cea8b184840067d32b653df35a34d025440dbabaad057df3f8ab058a4b77e",
+        "passed": true,
+        "commands": [
+          {
+            "command": "fledge lanes run verify",
+            "success": true,
+            "exit_code": 0
+          }
+        ],
+        "requirement_ids": []
+      },
+      "stale_acceptance_input_digest": "9c8cea8b184840067d32b653df35a34d025440dbabaad057df3f8ab058a4b77e",
+      "current_acceptance_input_digest": "16b5c82681b190bf429848f2dd6df9bda22c19700e9275378c51de30fecbb077"
     }
   ]
 }

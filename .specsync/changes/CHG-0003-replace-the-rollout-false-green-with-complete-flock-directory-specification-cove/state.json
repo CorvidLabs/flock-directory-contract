@@ -5,10 +5,11 @@
   "title": "Replace the rollout false-green with complete Flock Directory specification coverage and a blocking 100% Trust contract gate",
   "description": "Replace the rollout false-green with complete Flock Directory specification coverage and a blocking 100% Trust contract gate",
   "kind": "bug_fix",
-  "state": "implementing",
+  "state": "accepted",
+  "canonical_applied": true,
   "base_commit": "3d33f52f2dc0cae012499db4648b0ceb4d0be6af",
   "created_at": 1784013812,
-  "updated_at": 1784084739,
+  "updated_at": 1784085129,
   "affected_specs": [
     "flock-directory"
   ],

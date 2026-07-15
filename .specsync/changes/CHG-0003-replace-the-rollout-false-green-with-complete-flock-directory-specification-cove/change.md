@@ -1,6 +1,6 @@
 ---
 id: CHG-0003-replace-the-rollout-false-green-with-complete-flock-directory-specification-cove
-state: implementing
+state: accepted
 type: bug_fix
 base_commit: 3d33f52f2dc0cae012499db4648b0ceb4d0be6af
 ---

@@ -34,6 +34,14 @@
       "timestamp": 1784084739,
       "digest": "13a25c6cac02c2c2904cec1469a9dd5014b2a61fb2e921a0f3002556b18bf843",
       "note": "Reapproved the synchronized single acceptance criterion, exact six-script inventory, and Vitest verification boundary; no product semantics or hosted outcome is claimed."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784085129,
+      "digest": "4eea7702f2c1349ff6dc4879063268861b4be5590705a07008d9eb2f12bba608",
+      "note": "Closing approval after synchronized definition review and exact committed-head native verification: 100% coverage, deterministic artifact comparison, all integrations, and 46 LocalNet tests passed; no hosted result is claimed."
     }
-  ]
+  ],
+  "reopenings": []
 }
