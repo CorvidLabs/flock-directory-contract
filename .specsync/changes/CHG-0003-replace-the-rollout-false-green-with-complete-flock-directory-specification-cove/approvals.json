@@ -20,7 +20,13 @@
       "timestamp": 1784015092,
       "digest": "24e89499bcaa76404186750a5a40db90071716ef43f6c4cff25470a664591ca6",
       "note": "Reapproved deterministic dashboard build settings after local production-build validation."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784084159,
+      "digest": "4dfc569cb9854c7f84507ab4b508979d4ecfa3582b4d29440b5a509c7a328b26",
+      "note": "Reapproved the corrected single acceptance criterion, exact six-script inventory, and Vitest verification boundary; no product semantics or hosted outcome is claimed."
     }
-  ],
-  "reopenings": []
+  ]
 }

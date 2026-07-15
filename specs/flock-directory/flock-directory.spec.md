@@ -163,7 +163,7 @@ The Angular dashboard decodes the contract's global state and box layouts, perio
 
 ### Operational Scripts
 
-The deployment, registration, update, and TestNet exercise scripts are credentialed, mutating operator tools. The test runner is the local verification entry point. Pull-request verification may compile and inspect these files but must not execute TestNet mutations, remote capability endpoints, browser sessions, or WebSocket delivery.
+The deployment, registration, update, TestNet exercise, and agent endpoint test-runner scripts are five credentialed, potentially mutating operator tools. `scripts/verify-artifacts.ts` is a deterministic verifier for temporary compilation output. The Fledge-invoked Vitest suite, not `scripts/test-runner.ts`, is the local verification entry point; the test runner can contact remote agent endpoints. Pull-request verification may compile and inspect the operator scripts but must not execute TestNet mutations, remote capability endpoints, browser sessions, or WebSocket delivery.
 
 ## Invariants
 
