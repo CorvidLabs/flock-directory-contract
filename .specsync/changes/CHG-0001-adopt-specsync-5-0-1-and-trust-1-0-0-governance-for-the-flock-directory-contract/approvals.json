@@ -34,6 +34,13 @@
       "timestamp": 1784085119,
       "digest": "2f32cc7160d782078cf81a4d1c0fc04e7c1e4d52405a61dbbfd2a23e75446b3c",
       "note": "Fresh closing approval after exact committed-head verification: all nine Fledge steps passed, artifacts matched, and 46 LocalNet tests passed; no hosted result is claimed."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784085244,
+      "digest": "3fb5798faffc7b7233a3507cab162c8e63325b894cadf0a53f21ae65ada8ceff",
+      "note": "Fresh closing approval after final canonical delivery inputs were committed and the complete nine-step lane plus 46 LocalNet tests passed; no hosted result is claimed."
     }
   ],
   "reopenings": [

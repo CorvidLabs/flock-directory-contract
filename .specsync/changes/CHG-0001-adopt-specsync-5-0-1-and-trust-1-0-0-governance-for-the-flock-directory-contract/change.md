@@ -1,6 +1,6 @@
 ---
 id: CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-flock-directory-contract
-state: verifying
+state: accepted
 type: migration
 base_commit: 3dfc1800ed8dcf32be7fa8967ce64796c90ea1e6
 ---
