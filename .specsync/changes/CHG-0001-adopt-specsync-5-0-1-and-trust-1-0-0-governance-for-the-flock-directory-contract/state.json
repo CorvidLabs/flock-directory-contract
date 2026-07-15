@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-flock-directory-contract",
+  "slug": "adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-flock-directory-contract",
+  "title": "Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Flock Directory contract",
+  "description": "Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Flock Directory contract",
+  "kind": "migration",
+  "state": "accepted",
+  "canonical_applied": true,
+  "base_commit": "3dfc1800ed8dcf32be7fa8967ce64796c90ea1e6",
+  "created_at": 1783884361,
+  "updated_at": 1784085244,
+  "affected_specs": [],
+  "affected_paths": [
+    "contracts/",
+    "bridge/",
+    "dashboard/",
+    "scripts/",
+    "tests/",
+    "artifacts/",
+    "package.json",
+    "bun.lock",
+    "fledge.toml",
+    ".github/",
+    ".specsync/",
+    "specs/",
+    ".trust.toml",
+    ".augur.toml",
+    ".attest.json",
+    "AGENTS.md"
+  ],
+  "no_spec_change": true,
+  "no_spec_change_rationale": "This governance-only migration assigns stable requirement IDs and configures SpecSync and Trust without changing the Flock Directory contract, bridge, dashboard, or existing requirement semantics.",
+  "acceptance_criteria": [
+    "Strict SpecSync passes at advisory threshold 0; all four agent integrations are installed; Trust doctor passes; project typecheck, contract compilation, and existing integration tests pass on the normal hosted localnet runner"
+  ],
+  "selected_artifacts": [
+    "context",
+    "research",
+    "design",
+    "plan",
+    "tasks",
+    "testing",
+    "docs"
+  ],
+  "dependencies": [],
+  "answers": {
+    "architecture_risk": "yes",
+    "public_contract": "no"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "CHG-0002-make-flock-verification-builds-non-mutating-before-trust-contract-evaluation",
+  "slug": "make-flock-verification-builds-non-mutating-before-trust-contract-evaluation",
+  "title": "Make Flock verification builds non-mutating before Trust contract evaluation",
+  "description": "Make Flock verification builds non-mutating before Trust contract evaluation",
+  "kind": "bug_fix",
+  "state": "accepted",
+  "canonical_applied": true,
+  "base_commit": "3e6524beb64410195892091086244b84990c1ef4",
+  "created_at": 1783950769,
+  "updated_at": 1784085124,
+  "affected_specs": [],
+  "affected_paths": [
+    "fledge.toml"
+  ],
+  "no_spec_change": true,
+  "no_spec_change_rationale": "The verification lane redirects generated TEALScript artifacts to an ignored workspace without changing the contract, committed release artifacts, or canonical requirement semantics.",
+  "acceptance_criteria": [
+    "The verification lane compiles TEALScript into an ignored workspace, leaves tracked files unchanged, passes 46 localnet contract tests, and allows Trust contract validation to observe the same delivery inputs that received closing approval."
+  ],
+  "selected_artifacts": [
+    "context",
+    "testing",
+    "tasks"
+  ],
+  "dependencies": [],
+  "answers": {
+    "architecture_risk": "no",
+    "public_contract": "no"
+  }
+}

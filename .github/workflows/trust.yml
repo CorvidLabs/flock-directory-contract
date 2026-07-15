@@ -1,0 +1,48 @@
+name: trust
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  trust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ALGOD_SERVER: http://localhost
+      ALGOD_PORT: 4001
+      ALGOD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      KMD_PORT: 4002
+      KMD_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      INDEXER_PORT: 8980
+      INDEXER_TOKEN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install
+      - name: Install AlgoKit
+        run: pipx install algokit
+      - name: Start AlgoKit localnet
+        run: |
+          algokit localnet start
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:4001/v2/status > /dev/null 2>&1; then
+              echo "Localnet ready after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::AlgoKit localnet did not become ready"
+          exit 1
+      - name: CorvidLabs Trust gate
+        id: trust
+        uses: CorvidLabs/trust@9d32b5786d2e9e4d39fc581c0091c721ee3d4226 # v1.0.0

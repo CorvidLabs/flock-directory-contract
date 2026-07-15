@@ -1,0 +1,47 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784014000,
+      "digest": "b914a4ac1f2593fc486d6ad73cf7460bd3b207f3c1399316ff9b0403ed80601c",
+      "note": "Approved complete source-to-spec mapping, truthful execution boundaries, and blocking 100% coverage without product semantic changes."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784015045,
+      "digest": "24e89499bcaa76404186750a5a40db90071716ef43f6c4cff25470a664591ca6",
+      "note": "Reapproved after adding complete exported-symbol documentation and non-semantic review corrections for bridge, dashboard, and generated-artifact verification."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784015092,
+      "digest": "24e89499bcaa76404186750a5a40db90071716ef43f6c4cff25470a664591ca6",
+      "note": "Reapproved deterministic dashboard build settings after local production-build validation."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784084159,
+      "digest": "4dfc569cb9854c7f84507ab4b508979d4ecfa3582b4d29440b5a509c7a328b26",
+      "note": "Reapproved the corrected single acceptance criterion, exact six-script inventory, and Vitest verification boundary; no product semantics or hosted outcome is claimed."
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784084739,
+      "digest": "13a25c6cac02c2c2904cec1469a9dd5014b2a61fb2e921a0f3002556b18bf843",
+      "note": "Reapproved the synchronized single acceptance criterion, exact six-script inventory, and Vitest verification boundary; no product semantics or hosted outcome is claimed."
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784085129,
+      "digest": "4eea7702f2c1349ff6dc4879063268861b4be5590705a07008d9eb2f12bba608",
+      "note": "Closing approval after synchronized definition review and exact committed-head native verification: 100% coverage, deterministic artifact comparison, all integrations, and 46 LocalNet tests passed; no hosted result is claimed."
+    }
+  ],
+  "reopenings": []
+}

@@ -1,0 +1,15 @@
+{
+  "bootstrap_policy": {
+    "base_commit": "3dfc1800ed8dcf32be7fa8967ce64796c90ea1e6",
+    "digest": "5845b1b26da312f432eccd7da884ed2a3146f8754e3a6c1d719342249f47f1f4",
+    "path": ".specsync/sdd.json"
+  },
+  "generated_at": 1783884160,
+  "requirements_needing_ids": [
+    {
+      "action": "review and assign one stable ID per durable requirement",
+      "path": "specs/flock-directory/requirements.md",
+      "suggested_first_id": "REQ-flock-directory-001"
+    }
+  ]
+}
