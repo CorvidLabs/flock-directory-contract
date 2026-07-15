@@ -17,10 +17,7 @@ Replace the rollout false-green with complete Flock Directory specification cove
 
 ## Acceptance Criteria
 
-- Canonical Flock Directory specs map every governed contract
-- bridge
-- dashboard
-- and operational script file; requirements describe existing behavior without semantic changes; portable and released SpecSync report 100% file and LOC coverage; Trust requires 100%; native non-mutating verification passes; all four agent integrations remain installed.
+- Canonical Flock Directory specs map every governed contract, bridge, dashboard, and operational script file; requirements describe existing behavior without semantic changes; SpecSync 5.0.1 reports 100% file and LOC coverage; Trust requires 100%; native non-mutating verification passes; and all four agent integrations remain installed.
 
 ## No-spec Rationale
 
